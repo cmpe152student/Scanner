@@ -1,4 +1,5 @@
 #include <cctype>
+#include <cstdlib>
 #include <iostream>
 #include <iterator>
 #include <ostream>
@@ -7,66 +8,39 @@
 #include <vector>
 
 enum token_type {
-  NO_TOKEN,
-  IDENTIFIER,
-  NUMBER,
-  STRING,
-  UPARROW,
-  STAR,
-  LPAREN,
-  RPAREN,
-  MINUSOP,
-  MINUSEQUAL,
-  PLUSOP,
-  PLUSEQUAL,
-  MULTOP,
-  MULTEQUAL,
-  DIVOP,
-  DIVEQUAL,
-  ASSIGN,
-  CARAT,
-  EQUAL,
-  LBRACKET,
-  RBRACKET,
-  LBRACE,
-  RBRACE,
-  COLON,
-  SEMICOLON,
-  LTEQ,
-  GT,
-  GTEQ,
-  COMMA,
-  PERIOD,
-  SLASH,
-  COLONEQUAL,
-  LE,
-  GE,
-  NE,
-  LT,
-  DOTDOT,
-  END_OF_FILE,
-  ERROR,
   AND,
   ARRAY,
+  ASM,
   BEGIN,
+  BREAK,
   CASE,
   CONST,
+  CONSTRUCTOR,
+  CONTINUE,
+  DESTRUCTOR,
   DIV,
   DO,
   DOWNTO,
   ELSE,
   END,
-  FFILE,
+  FALSE,
+  FILE_,
   FOR,
   FUNCTION,
   GOTO,
   IF,
+  IMPLEMENTATION,
   IN,
+  INLINE,
+  INTERFACE,
   LABEL,
   MOD,
   NIL,
   NOT,
+  OBJECT,
   OF,
+  ON,
+  OPERATOR,
   OR,
   PACKED,
   PROCEDURE,
@@ -74,31 +48,97 @@ enum token_type {
   RECORD,
   REPEAT,
   SET,
+  SHL,
+  SHR,
+  STRING,
   THEN,
   TO,
+  TRUE,
   TYPE,
+  UNIT,
   UNTIL,
+  USES,
   VAR,
   WHILE,
   WITH,
+  XOR,
+  INTEGER,
+  REAL,
+  INDENTIFIER,
+  PLUSOP,
+  END_OF_FILE,
+  MINUSOP,
+  MULTOP,
+  DIVOP,
+  ASSIGN,
+  EQUAL,
+  NE,
+  LTEQ,
+  GTEQ,
+  LT,
+  GT,
+  PLUSEQUAL,
+  MINUSEQUAL,
+  MULTEQUAL,
+  DIVEQUAL,
+  CARAT,
+  SEMICOLON,
+  COMMA,
+  LPAREN,
+  RPAREN,
+  LBRACKET,
+  RBRACKET,
+  LBRACE,
+  RBRACE,
+  LCOMMENT,
+  RCOMMENT,
+  COLON,
 };
 
 std::vector<std::string> token_string{
-    "NO_TOKEN", "IDENTIFIER", "NUMBER",      "STRING",    "UPARROW",
-    "STAR",     "LPAREN",     "RPAREN",      "MINUSOP",   "MINUSEQUAL",
-    "PLUSOP",   "PLUSEQUAL",  "MULTOP",      "MULTEQUAL", "DIVOP",
-    "DIVEQUAL", "ASSIGN",     "CARAT",       "EQUAL",     "LBRACKET",
-    "RBRACKET", "LBRACE",     "RBRACE",      "COLON",     "SEMICOLON",
-    "LTEQ",     "GT",         "GTEQ",        "COMMA",     "PERIOD",
-    "SLASH",    "COLONEQUAL", "LE",          "GE",        "NE",
-    "LT",       "DOTDOT",     "END_OF_FILE", "ERROR",     "AND",
-    "ARRAY",    "BEGIN",      "CASE",        "CONST",     "DIV",
-    "DO",       "DOWNTO",     "ELSE",        "END",       "FFILE",
-    "FOR",      "FUNCTION",   "GOTO",        "IF",        "IN",
-    "LABEL",    "MOD",        "NIL",         "NOT",       "OF",
-    "OR",       "PACKED",     "PROCEDURE",   "PROGRAM",   "RECORD",
-    "REPEAT",   "SET",        "THEN",        "TO",        "TYPE",
-    "UNTIL",    "VAR",        "WHILE",       "WITH",
+    "AND",         "ARRAY",
+    "ASM",         "BEGIN",
+    "BREAK",       "CASE",
+    "CONST",       "CONSTRUCTOR",
+    "CONTINUE",    "DESTRUCTOR",
+    "DIV",         "DO",
+    "DOWNTO",      "ELSE",
+    "END",         "FALSE",
+    "FILE_",       "FOR",
+    "FUNCTION",    "GOTO",
+    "IF",          "IMPLEMENTATION",
+    "IN",          "INLINE",
+    "INTERFACE",   "LABEL",
+    "MOD",         "NIL",
+    "NOT",         "OBJECT",
+    "OF",          "ON",
+    "OPERATOR",    "OR",
+    "PACKED",      "PROCEDURE",
+    "PROGRAM",     "RECORD",
+    "REPEAT",      "SET",
+    "SHL",         "SHR",
+    "STRING",      "THEN",
+    "TO",          "TRUE",
+    "TYPE",        "UNIT",
+    "UNTIL",       "USES",
+    "VAR",         "WHILE",
+    "WITH",        "XOR",
+    "INTEGER",     "REAL",
+    "INDENTIFIER", "PLUSOP",
+    "END_OF_FILE", "MINUSOP",
+    "MULTOP",      "DIVOP",
+    "ASSIGN",      "EQUAL",
+    "NE",          "LTEQ",
+    "GTEQ",        "LT",
+    "GT",          "PLUSEQUAL",
+    "MINUSEQUAL",  "MULTEQUAL",
+    "DIVEQUAL",    "CARAT",
+    "SEMICOLON",   "COMMA",
+    "LPAREN",      "RPAREN",
+    "LBRACKET",    "RBRACKET",
+    "LBRACE",      "RBRACE",
+    "LCOMMENT",    "RCOMMENT",
+    "COLON",
 };
 
 struct Token {
@@ -122,8 +162,8 @@ class Scanner {
   void add_token(token_type type) {
     tokens.push_back(Token{
         type,
-        source.substr(start, current),
-        line,
+        source.substr(this->start, this->current),
+        this->line,
     });
   }
 
@@ -138,6 +178,29 @@ class Scanner {
 
     current++;
     return true;
+  }
+
+  void consume_block_comment() {
+    /** discard '*' */
+    this->advance();
+    this -> add_token(LCOMMENT);
+    for (;;) {
+      if (is_at_end()) {
+        std::cerr << "Unclosed comment (* *) block line: " << this -> line << '\n';
+	exit(69);
+      }
+      char c = this->advance();
+      if (c == '\n') {
+        this->line++;
+      } else if (c == '*' and this->peek() == ')') {
+	this -> add_token(RCOMMENT);
+	this->advance();
+        return;
+      } else if (c == '(' and this->peek() == '*') {
+        this->consume_block_comment();
+	
+      }
+    }
   }
 
   // void identifier() {
@@ -156,7 +219,6 @@ class Scanner {
       this->scan_token();
     }
 
-    tokens.push_back(Token{END_OF_FILE, "", line});
     return tokens;
   };
 
@@ -165,12 +227,13 @@ class Scanner {
   bool is_alpha_numeric(char c) { return is_alpha(c) or std::isdigit(c); }
 
   void scan_token() {
-    if (char c = advance(); c == '+') {
+    char c = advance();
+    if (c == '+') {
       // +=, +
       if (match('=')) {
-        add_token(PLUSOP);
-      } else {
         add_token(PLUSEQUAL);
+      } else {
+        add_token(PLUSOP);
       }
     } else if (c == '-') {
       // -=, -
@@ -218,7 +281,11 @@ class Scanner {
     } else if (c == ',') {
       add_token(COMMA);
     } else if (c == '(') {
-      add_token(LPAREN);
+      if (match('*')) {
+        consume_block_comment();
+      } else {
+        add_token(LPAREN);
+      }
     } else if (c == ')') {
       add_token(RPAREN);
     } else if (c == '[') {
@@ -255,8 +322,7 @@ class Scanner {
 
 void run(std::string &source) {
   Scanner scanner(source);
-  for (const auto &token : scanner.scanTokens())
-    std::cout << token_string[token.type] << '\n';
+  for (const Token &token : scanner.scanTokens()) std::cout << token << '\n';
 }
 
 int main(int argc, char *argv[]) {
