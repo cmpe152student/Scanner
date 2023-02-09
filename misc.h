@@ -191,7 +191,6 @@ std::unordered_map<std::string, token_type> keywords{
     {"WHILE", WHILE},
     {"WITH", WITH},
     {"XOR", XOR},
-    {"INTEGER", INTEGER},
     {"REAL", REAL},
     {"IDENTIFIER", IDENTIFIER},
     {"PLUSOP", PLUSOP},

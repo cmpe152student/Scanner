@@ -7,8 +7,15 @@ sources  = $(wildcard *.cpp)
 objects  = $(sources:.cpp=.o)
 CPP      = clang++
 CPPFLAGS = -std=c++20
+FILES = 
 
 $(app_name) : $(objects)
 	$(CPP) $^ -o $@
 clean :
-	rm -f $(app_name) $(objects) *~
+	rm -f $(app_name) $(objects) *~ outputs/*
+
+test: clean $(app_name)
+	./$(app_name) < test-in.txt > outputs/myoutput.txt
+	diff tests/correct.txt outputs/myoutput.txt
+
+

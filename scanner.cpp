@@ -135,6 +135,7 @@ class Scanner {
   void identifier() {
     while (this->is_alpha_numeric(this->peek())) this->advance();
     // Checks for reserved words
+    // Our tokenizer strings seem to not trim to current taking every single string available
     std::string token = source.substr(this->start, this->current);
     std::istringstream ss{token};
     std::string text;
@@ -145,6 +146,9 @@ class Scanner {
                    [](unsigned char c) { return std::toupper(c); });
     // Trim all non alpha numeric numbers
     // Check if the back of the string has anything added
+    if (!this->is_alpha_numeric(text.back()))
+      text = text.substr(0, text.length() - 1);
+
     token_type type;
     if (auto search = keywords.find(text); search != keywords.end())
       type = search->second;
@@ -286,7 +290,7 @@ class Scanner {
       if (this->is_digit(c)) {
         this->number();
       } else if (this->is_alpha(c)) {
-        // FSM for discovering identifier
+        // FSM for discovering reserved words and identifier
         this->identifier();
       } else {
         std::cerr << "Unexpected character\n";
@@ -300,7 +304,7 @@ class Scanner {
     this->scan_tokens();
   };
 
-  // builds vector
+  // Returns all the tokens if asked by the user
   std::vector<Token> scan_tokens() {
     while (!is_at_end()) {
       this->start = this->current;
@@ -310,6 +314,9 @@ class Scanner {
     return tokens;
   }
 
+  ////////////////////////////////////////////////////////////////////
+  // REQUIRED: By this assignment. The user must call `next_token`  //
+  ////////////////////////////////////////////////////////////////////
   std::optional<Token> next_token() {
     if (tokens_index < tokens.size()) return tokens[tokens_index++];
     return {};
