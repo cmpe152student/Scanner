@@ -183,22 +183,22 @@ class Scanner {
   void consume_block_comment() {
     /** discard '*' */
     this->advance();
-    this -> add_token(LCOMMENT);
+    this->add_token(LCOMMENT);
     for (;;) {
       if (is_at_end()) {
-        std::cerr << "Unclosed comment (* *) block line: " << this -> line << '\n';
-	exit(69);
+        std::cerr << "Unclosed comment (* *) block line: " << this->line
+                  << '\n';
+        exit(69);
       }
       char c = this->advance();
       if (c == '\n') {
         this->line++;
       } else if (c == '*' and this->peek() == ')') {
-	this -> add_token(RCOMMENT);
-	this->advance();
+        this->add_token(RCOMMENT);
+        this->advance();
         return;
       } else if (c == '(' and this->peek() == '*') {
         this->consume_block_comment();
-	
       }
     }
   }
@@ -225,6 +225,38 @@ class Scanner {
   bool is_alpha(char c) { return c == '_' or isalpha(c); }
 
   bool is_alpha_numeric(char c) { return is_alpha(c) or std::isdigit(c); }
+
+  char peek_next() {
+    if (current + 1 >= source.length()) return '\0';
+    return source[current + 1];
+  }
+
+  bool is_digit(char c) { return c >= '0' and c <= '9'; }
+
+  void identifier() {
+    while (this->is_alpha_numeric(this->peek())) this->advance();
+
+    this->add_token(INDENTIFIER);
+  }
+
+  void number() {
+    while (is_digit(this->peek())) this->advance();
+
+    bool is_real = false;
+    // look for fraction '.'
+    if (peek() == '.' and this->is_digit(this->peek_next())) {
+      is_real = true;
+      this->advance();
+
+      while (this->is_digit(this->peek())) this->advance();
+    }
+
+    if (is_real) {
+      add_token(REAL);
+    } else {
+      add_token(INTEGER);
+    }
+  }
 
   void scan_token() {
     char c = advance();
@@ -308,11 +340,24 @@ class Scanner {
       } else {
         add_token(DIVOP);
       }
+    } else if (c == '\'') {
+      while (peek() != '\'' and !is_at_end()) {
+        if (peek() == '\n') line++;
+        this->advance();
+      }
+
+      if (is_at_end()) {
+        std::cerr << "Unterminated String line: " << line << std::endl;
+        exit(21);
+      }
+      // Closing '
+      this->advance();
+      add_token(STRING);
     } else {
-      if (std::isdigit(c)) {
-        // number();
+      if (is_digit(c)) {
+        number();
       } else if (isalpha(c)) {
-        // identifier();
+        identifier();
       } else {
         std::cerr << "Unexpected character\n";
       }
