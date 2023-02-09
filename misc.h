@@ -1,5 +1,8 @@
 #ifndef MISC_H
 #define MISC_H
+#include <unordered_map>
+#include <vector>
+#include <string>
 
 enum token_type {
   AND,
@@ -58,7 +61,7 @@ enum token_type {
   XOR,
   INTEGER,
   REAL,
-  INDENTIFIER,
+  IDENTIFIER,
   PLUSOP,
   MINUSOP,
   MULTOP,
@@ -117,7 +120,7 @@ std::vector<std::string> token_string{
     "VAR",         "WHILE",
     "WITH",        "XOR",
     "INTEGER",     "REAL",
-    "INDENTIFIER", "PLUSOP",
+    "IDENTIFIER", "PLUSOP",
     "MINUSOP",     "MULTOP",
     "DIVOP",       "ASSIGN",
     "COLON",       "EQUAL",
@@ -190,7 +193,7 @@ std::unordered_map<std::string, token_type> keywords{
     {"XOR", XOR},
     {"INTEGER", INTEGER},
     {"REAL", REAL},
-    {"INDENTIFIER", INDENTIFIER},
+    {"IDENTIFIER", IDENTIFIER},
     {"PLUSOP", PLUSOP},
     {"MINUSOP", MINUSOP},
     {"MULTOP", MULTOP},

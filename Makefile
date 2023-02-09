@@ -5,10 +5,10 @@
 app_name = scanner
 sources  = $(wildcard *.cpp)
 objects  = $(sources:.cpp=.o)
-CPP      = g++
-CPPFLAGS = -std=c++17
+CPP      = clang++
+CPPFLAGS = -std=c++20
 
 $(app_name) : $(objects)
 	$(CPP) $^ -o $@
 clean :
-	rm -f $(app_name) $(objects)
+	rm -f $(app_name) $(objects) *~

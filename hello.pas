@@ -1,6 +1,8 @@
 program hello(output);
 
-(* Comment *)
+(*
+ * 
+ *)
 
 VAR
    i := integer;
@@ -8,7 +10,7 @@ VAR
 BEGIN (hello)
    FOR i := 1 TO 10 BEGIN
       writeln('Hello, World');
-   END;
+   END; // Problem Here
 END (hello);
 
 
