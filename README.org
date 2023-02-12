@@ -1,21 +1,47 @@
 #+AUTHOR: Team 4
+#+Title: CMPE 152 Pascal Scanner
 
-* CMPE 152 Pascal Scanner
-** Makefile
+* Makefile
 
-Running the make command like so should generate the `./scanner` executable
+** make all (make)
+
+The make all command is for rebuilding and retesting this program
+
+#+begin_src shell
+make all
+#+end_src
+
+Includes all of the targets. Enjoy your `./scanner` executable. 
+
+*** make
+
+This is the default so running
 
 #+begin_src shell
 make
 #+end_src
 
-This also includes a `make clean` command 
+Should be the same as running `make all`
+
+
+** make scanner
+
+This builds the scanner program and generates the `./scanner` executable
+
+#+begin_src shell
+make scanner
+#+end_src
+
+** make clean
 
 #+begin_src shell
 make clean
 #+end_src
 
-That deletes `.o` files. `*~` files and testing files. 
+That deletes `.o` files. `*~` files, and testing files.
+
+
+** make test
 
 The testing command is pretty simple
 
@@ -25,5 +51,5 @@ make test
 
 Runs a `diff` command on hand generated data. `test-in.txt` which is a standard pascal program that prints "Hello World" 10 times to the screen 
 
-The `//` comment is a line comment in pascal used to verify the token labels and are not to be evaluated
+The `//` comment is a line comment in pascal used to verify the token labels and are not to be evaluated. These are for help when hand testing the data. 
 

@@ -9,8 +9,11 @@ CPP      = clang++
 CPPFLAGS = -std=c++20
 FILES = 
 
+all: clean $(app_name) test
+
 $(app_name) : $(objects)
 	$(CPP) $^ -o $@
+
 clean :
 	rm -f $(app_name) $(objects) *~ outputs/*
 
